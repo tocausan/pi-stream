@@ -1,44 +1,43 @@
-const express = require('express'),
-    app = express(),
+const app = require('express')(),
     http = require('http').Server(app),
     io = require('socket.io')(http),
     fs = require('fs'),
     path = require('path'),
-    spawn = require('child_process').spawn;
-
+    spawn = require('child_process').spawn,
+    sockets = {};
 let proc;
 
-app.use('/', express.static(path.join(__dirname, 'stream')));
+app.use('/', express.static(path.join(__dirname, 'stream')))
+    .get('/', (req, res) => {
+        res.sendFile(__dirname + '/index.html');
+    });
 
-
-app.get('/', (req, res) => {
-    res.sendFile(__dirname + '/index.html');
-});
-
-const sockets = {};
 
 io.on('connection', (socket) => {
     sockets[socket.id] = socket;
-    console.log("Total clients connected : ", Object.keys(sockets).length);
+    console.log("connections: ", Object.keys(sockets).length);
 
-    socket.on('disconnect', function () {
+    socket.on('disconnect', () => {
         delete sockets[socket.id];
 
-        // no more sockets, kill the stream
-        if (Object.keys(sockets).length == 0) {
-            app.set('watchingFile', false);
-            if (proc) proc.kill();
-            fs.unwatchFile('./stream/image_stream.jpg');
-        }
+        stopStreaming();
     });
 
-    socket.on('start-stream', () => {
-        startStreaming(io);
+    socket.on('stream', (data) => {
+        switch (data) {
+            case 'start':
+                startStreaming(io);
+                break;
+            case 'stop':
+                stopStreaming();
+                break;
+        }
     });
 });
 
 http.listen(3000, () => {
-    console.log('listening on *:3000');
+    const ip = spawn('ifconfig | grep -Eo \'inet (addr:)?([0-9]*\\.){3}[0-9]*\' | grep -Eo \'([0-9]*\\.){3}[0-9]*\' | grep -v \'127.0.0.1\'');
+    console.log('listening on ' + ip + ':3000');
 });
 
 function stopStreaming() {
@@ -50,19 +49,16 @@ function stopStreaming() {
 }
 
 function startStreaming(io) {
-    if (app.get('watchingFile')) return io.sockets.emit('liveStream', 'image_stream.jpg?_t=' + (Math.random() * 100000));
+    let time = (new Date()).getTime();
+    if (app.get('watchingFile')) return io.sockets.emit('liveStream', 'image_stream.jpg?_t=' + time);
 
-    const args = ['-w', '640', '-h', '480', '-o', './stream/image_stream.jpg', '-t', '999999999', '-tl', '100', '-br', '50'];
+    const args = ['-w', '1080', '-h', '810', '-o', './stream/image_stream.jpg', '-t', '999999999', '-tl', '0'];
     proc = spawn('raspistill', args);
-
-    console.log('Watching for changes...');
 
     app.set('watchingFile', true);
 
-    fs.watchFile('./stream/image_stream.jpg', (current, previous) => {
-        const n = Math.random() * 100000;
-        console.log(n);
-        io.sockets.emit('liveStream', 'image_stream.jpg?_t=' + n);
+    fs.watchFile('./stream/image_stream.jpg', {interval: 0}, (current, previous) => {
+        time = (new Date()).getTime();
+        io.sockets.emit('liveStream', 'image_stream.jpg?_t=' + time);
     })
-
 }
