@@ -24,6 +24,8 @@ io.on('connection', (socket) => {
     });
 
     socket.on('stream', (data) => {
+        console.log(data);
+        
         switch (data) {
             case 'start':
                 startStreaming(io);

@@ -43,8 +43,7 @@
         });
 
         (function startStream() {
-            socket.emit('start-stream');
-            $('.start').hide();
+            socket.emit('stream', 'start');
         })();
     </script>
 </head>
