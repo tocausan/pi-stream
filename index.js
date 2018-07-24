@@ -18,7 +18,6 @@ app.get('/', (req, res) => {
 const sockets = {};
 
 io.on('connection', (socket) => {
-
     sockets[socket.id] = socket;
     console.log("Total clients connected : ", Object.keys(sockets).length);
 
@@ -36,7 +35,6 @@ io.on('connection', (socket) => {
     socket.on('start-stream', () => {
         startStreaming(io);
     });
-
 });
 
 http.listen(3000, () => {
@@ -52,13 +50,10 @@ function stopStreaming() {
 }
 
 function startStreaming(io) {
+    if (app.get('watchingFile')) return io.sockets.emit('liveStream', 'image_stream.jpg?_t=' + (Math.random() * 100000));
 
-    if (app.get('watchingFile')) {
-        io.sockets.emit('liveStream', 'image_stream.jpg?_t=' + (Math.random() * 100000));
-        return;
-    }
-
-    const args = ["-w", "640", "-h", "480", "-o", "./stream/image_stream.jpg", "-t", "999999999", "-tl", "100"];
+    //const args = ["-w", "640", "-h", "480", "-o", "./stream/image_stream.jpg", "-t", "999999999", "-tl", "100"];
+    const args = ["-o", "./stream/image_stream.jpg", "-t", "999999999", "-tl", "100"];
     proc = spawn('raspistill', args);
 
     console.log('Watching for changes...');
@@ -66,7 +61,9 @@ function startStreaming(io) {
     app.set('watchingFile', true);
 
     fs.watchFile('./stream/image_stream.jpg', (current, previous) => {
-        io.sockets.emit('liveStream', 'image_stream.jpg?_t=' + (Math.random() * 100000));
+        const n = Math.random() * 100000;
+        console.log(n);
+        io.sockets.emit('liveStream', 'image_stream.jpg?_t=' + n);
     })
 
 }
