@@ -4,7 +4,7 @@ const express = require('express'),
     io = require('socket.io')(http),
     fs = require('fs'),
     path = require('path'),
-    spawn = require('child_process').spawn,
+    childProcess = require('child_process'),
     sockets = {};
 let proc;
 
@@ -39,8 +39,9 @@ io.on('connection', (socket) => {
 });
 
 http.listen(3000, () => {
-    const ip = spawn('ifconfig | grep -Eo \'inet (addr:)?([0-9]*\\.){3}[0-9]*\' | grep -Eo \'([0-9]*\\.){3}[0-9]*\' | grep -v \'127.0.0.1\'');
-    console.log('listening on ' + ip + ':3000');
+    const ip = childProcess.exec('ifconfig | grep -Eo \'inet (addr:)?([0-9]*\\.){3}[0-9]*\' | grep -Eo \'([0-9]*\\.){3}[0-9]*\' | grep -v \'127.0.0.1\'',(err, stdout, stderr)=>{
+        console.log('listening on ' + stdout.trim() + ':3000');
+    });
 });
 
 function stopStreaming() {
@@ -56,7 +57,7 @@ function startStreaming(io) {
     if (app.get('watchingFile')) return io.sockets.emit('liveStream', 'image_stream.jpg?_t=' + time);
 
     const args = ['-w', '1080', '-h', '810', '-o', './stream/image_stream.jpg', '-t', '999999999', '-tl', '0'];
-    proc = spawn('raspistill', args);
+    proc = childProcess.spawn('raspistill', args);
 
     app.set('watchingFile', true);
 
