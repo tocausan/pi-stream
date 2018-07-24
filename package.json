@@ -1,0 +1,23 @@
+{
+  "name": "pi-stream",
+  "version": "1.0.0",
+  "description": "pi-stream",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@gitlab.com/tocausan/pi-stream.git"
+  },
+  "author": "tocausan",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://gitlab.com/tocausan/pi-stream/issues"
+  },
+  "homepage": "https://gitlab.com/tocausan/pi-stream#README",
+  "dependencies": {
+    "express": "^4.16.3",
+    "socket.io": "^2.1.1"
+  }
+}
