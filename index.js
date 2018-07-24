@@ -52,8 +52,7 @@ function stopStreaming() {
 function startStreaming(io) {
     if (app.get('watchingFile')) return io.sockets.emit('liveStream', 'image_stream.jpg?_t=' + (Math.random() * 100000));
 
-    //const args = ["-w", "640", "-h", "480", "-o", "./stream/image_stream.jpg", "-t", "999999999", "-tl", "100"];
-    const args = ["-o", "./stream/image_stream.jpg", "-t", "999999999", "-tl", "100"];
+    const args = ['-w', '640', '-h', '480', '-o', './stream/image_stream.jpg', '-t', '999999999', '-tl', '100', '-br', '50'];
     proc = spawn('raspistill', args);
 
     console.log('Watching for changes...');
