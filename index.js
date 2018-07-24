@@ -1,4 +1,5 @@
-const app = require('express')(),
+const express = require('express'),
+    app = express(),
     http = require('http').Server(app),
     io = require('socket.io')(http),
     fs = require('fs'),
@@ -25,7 +26,7 @@ io.on('connection', (socket) => {
 
     socket.on('stream', (data) => {
         console.log(data);
-        
+
         switch (data) {
             case 'start':
                 startStreaming(io);
