@@ -49,7 +49,7 @@ module.exports = (io) => {
             })
         },
         stopStreaming = async () => {
-            if (Object.keys(sockets).length == 0) {
+            if (isWatchingFile) {
                 isWatchingFile = false;
                 if (proc) proc.kill();
                 fs.unwatchFile('./stream/image_stream.jpg');
@@ -62,7 +62,7 @@ module.exports = (io) => {
 
         socket.on('disconnect', () => {
             delete sockets[socket.id];
-            stopStreaming();
+            return stopStreaming();
         });
 
         socket.on('stream', (data) => {
@@ -70,11 +70,9 @@ module.exports = (io) => {
 
             switch (data.command) {
                 case 'start':
-                    stopStreaming().then(() => startStreaming(io, data.options));
-                    break;
+                    return stopStreaming().then(() => startStreaming(io, data.options));
                 case 'stop':
-                    stopStreaming();
-                    break;
+                    return stopStreaming();
             }
         });
     });
