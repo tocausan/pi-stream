@@ -43,7 +43,7 @@
         });
 
         (function startStream() {
-            socket.emit('stream', 'start');
+            socket.emit('stream', {command: 'start', options: {width: 100}});
         })();
     </script>
 </head>
