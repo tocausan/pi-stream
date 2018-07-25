@@ -38,9 +38,13 @@ module.exports = (io) => {
             proc = cmd.spawn('raspistill', args);
             isWatchingFile = true;
 
-            fs.watchFile('./stream/image_stream.jpg', {interval: 0}, (current, previous) => {
+            const emitStream = (() => {
                 const time = (new Date()).getTime();
                 io.sockets.emit('liveStream', 'image_stream.jpg?_t=' + time);
+            })();
+
+            fs.watchFile('./stream/image_stream.jpg', {interval: 0}, (current, previous) => {
+                emitStream();
             })
         },
         stopStreaming = async () => {
