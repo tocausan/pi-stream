@@ -43,7 +43,7 @@
         });
 
         (function startStream() {
-            socket.emit('stream', {command: 'start', options: {width: 100}});
+            socket.emit('stream', {command: 'start', options: {width: 100, timelapse: 0}});
         })();
     </script>
 </head>

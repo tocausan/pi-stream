@@ -10,9 +10,6 @@ module.exports = (io) => {
             const args = [
                 '-o', './stream/image_stream.jpg',
                 '-t', '999999999',
-                '-w', '1080',
-                '-h', '810',
-                '-tl', '0'
             ];
 
             if (options !== undefined && options !== null) {
@@ -36,6 +33,7 @@ module.exports = (io) => {
                 if (options.drc) args.push('--drc', options.drc);
             }
 
+            console.log(args.join(' '));
 
             proc = cmd.spawn('raspistill', args);
             isWatchingFile = true;
@@ -45,7 +43,7 @@ module.exports = (io) => {
                 io.sockets.emit('liveStream', 'image_stream.jpg?_t=' + time);
             })
         },
-        stopStreaming = () => {
+        stopStreaming = async () => {
             if (Object.keys(sockets).length == 0) {
                 isWatchingFile = false;
                 if (proc) proc.kill();
@@ -56,7 +54,6 @@ module.exports = (io) => {
     io.on('connection', (socket) => {
         sockets[socket.id] = socket;
         console.log("connections: ", Object.keys(sockets).length);
-        startStreaming(io);
 
         socket.on('disconnect', () => {
             delete sockets[socket.id];
@@ -68,8 +65,7 @@ module.exports = (io) => {
 
             switch (data.command) {
                 case 'start':
-                    stopStreaming();
-                    startStreaming(io, data.options);
+                    stopStreaming().then(() => startStreaming(io, data.options));
                     break;
                 case 'stop':
                     stopStreaming();
