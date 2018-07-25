@@ -39,6 +39,7 @@
     <script>
         const socket = io();
         socket.on('liveStream', (url) => {
+            console.log(url);
             document.querySelector('.stream').setAttribute('src', url);
         });
 
