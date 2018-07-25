@@ -36,14 +36,14 @@ module.exports = (io) => {
 
             console.log(args.join(' '));
 
-            // proc = cmd.spawn('raspistill', args);
+             proc = cmd.spawn('raspistill', args);
             isWatchingFile = true;
 
             const emitStream = () => {
                 const time = (new Date()).getTime();
                 io.sockets.emit('liveStream', 'image_stream.jpg?_t=' + time);
             };
-
+            
             fs.watchFile('./stream/image_stream.jpg', {interval: 0}, (current, previous) => {
                 emitStream();
             })
