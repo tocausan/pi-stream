@@ -7,7 +7,8 @@ const express = require('express'),
 
 require('./sockets')(io);
 
-app.use('/', express.static(path.join(__dirname, 'stream')))
+app.use('/bower', express.static(path.join(__dirname, 'bower_components')))
+    .use('/stream', express.static(path.join(__dirname, 'stream')))
     .get('/', (req, res) => {
         res.sendFile(__dirname + '/index.html');
     });

@@ -18,7 +18,47 @@
             margin: 0;
         }
 
-        .container {
+        .options-container {
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            flex-direction: column;
+            position: fixed;
+            min-width: 100px;
+            max-height: 250px;
+            overflow-y: auto;
+            top: 10px;
+            left: 10px;
+        }
+
+        .options-container > .option {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            height: 20px;
+            min-height: 20px;
+            margin: 3px 0;
+        }
+
+        .options-container > .option > label {
+            width: 50%;
+            height: 100%;
+        }
+
+        .options-container > .option > input {
+            width: 50%;
+            height: 100%;
+            border: none;
+            border-bottom: 1px solid rgba(0, 0, 0, .1);
+            transition: .3s;
+        }
+
+        .options-container > .option > input:focus {
+            outline: none;
+            border-bottom: 1px solid rgba(0, 0, 0, .5);
+        }
+
+        .stream-container {
             display: flex;
             justify-content: center;
             align-items: center;
@@ -36,23 +76,72 @@
     </style>
 
     <script src="/socket.io/socket.io.js"></script>
-    <script>
-        const socket = io();
-        socket.on('liveStream', (url) => {
-            console.log(url);
-            document.querySelector('.stream').setAttribute('src', url);
-        });
-
-        (function startStream() {
-            socket.emit('stream', {command: 'start', options: {width: 100, height: 100, timelapse: 0}});
-        })();
-    </script>
+    <script src="/bower/vue/dist/vue.min.js"></script>
 </head>
 
 <body>
-<div class="container">
-    <img src="" class="stream">
+<div class="container" id="app">
+    <div class="options-container">
+        <div class="option" v-for="(value, key) in options">
+            <label :for="key" v-html="key"></label>
+            <input type="text" :id="key" v-model="options[key]">
+        </div>
+    </div>
+    <div class="stream-container">
+        <img src="" class="stream">
+    </div>
 </div>
 
+<script>
+    const socket = io();
+
+    const app = new Vue({
+        el: '#app',
+        data: {
+            options: {
+                timelapse: 0,
+                width: 100,
+                height: 100,
+                quality: null,
+                burst: null,
+                sharpness: null,
+                brightness: null,
+                saturation: null,
+                vstab: null,
+                ev: null,
+                colfx: null,
+                rotation: null,
+                hflip: null,
+                vflip: null,
+                roi: null,
+                shutter: null,
+                awbgains: null,
+                drc: null,
+            }
+        },
+        methods: {
+            startStream() {
+                socket.emit('stream', {command: 'start', options: this.options});
+            },
+            stopStream() {
+                socket.emit('stream', {command: 'stop'});
+            }
+        },
+        watch: {
+            options: {
+                handler() {
+                    this.startStream();
+                },
+                deep: true
+            }
+        },
+        mounted() {
+            socket.on('liveStream', (url) => {
+                console.log(url);
+                document.querySelector('.stream').setAttribute('src', url);
+            });
+        }
+    });
+</script>
 </body>
 </html>
