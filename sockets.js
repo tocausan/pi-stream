@@ -8,6 +8,7 @@ module.exports = (io) => {
     const sockets = {},
         startStreaming = (io, options) => {
             const args = [
+                '-n',
                 '-o', './stream/image_stream.jpg',
                 '-t', '999999999',
             ];
