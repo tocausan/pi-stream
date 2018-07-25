@@ -14,35 +14,35 @@ module.exports = (io) => {
             ];
 
             if (options !== undefined && options !== null) {
-                if (options.timelapse) args.push('--timelapse', options.timelapse);
-                if (options.width) args.push('--width', options.width);
-                if (options.height) args.push('--height', options.height);
-                if (options.quality) args.push('--quality', options.quality);
-                if (options.burst) args.push('--burst', options.burst);
-                if (options.sharpness) args.push('--sharpness', options.sharpness);
-                if (options.brightness) args.push('--brightness', options.brightness);
-                if (options.saturation) args.push('--saturation', options.saturation);
-                if (options.vstab) args.push('--vstab', options.vstab);
-                if (options.ev) args.push('--ev', options.ev);
-                if (options.colfx) args.push('--colfx', options.colfx);
-                if (options.rotation) args.push('--rotation', options.rotation);
-                if (options.hflip) args.push('--hflip', options.hflip);
-                if (options.vflip) args.push('--vflip', options.vflip);
-                if (options.roi) args.push('--roi', options.roi);
-                if (options.shutter) args.push('--shutter', options.shutter);
-                if (options.awbgains) args.push('--awbgains', options.awbgains);
-                if (options.drc) args.push('--drc', options.drc);
+                if (options.timelapse !== undefined) args.push('--timelapse', options.timelapse);
+                if (options.width !== undefined) args.push('--width', options.width);
+                if (options.height !== undefined) args.push('--height', options.height);
+                if (options.quality !== undefined) args.push('--quality', options.quality);
+                if (options.burst !== undefined) args.push('--burst', options.burst);
+                if (options.sharpness !== undefined) args.push('--sharpness', options.sharpness);
+                if (options.brightness !== undefined) args.push('--brightness', options.brightness);
+                if (options.saturation !== undefined) args.push('--saturation', options.saturation);
+                if (options.vstab !== undefined) args.push('--vstab', options.vstab);
+                if (options.ev !== undefined) args.push('--ev', options.ev);
+                if (options.colfx !== undefined) args.push('--colfx', options.colfx);
+                if (options.rotation !== undefined) args.push('--rotation', options.rotation);
+                if (options.hflip !== undefined) args.push('--hflip', options.hflip);
+                if (options.vflip !== undefined) args.push('--vflip', options.vflip);
+                if (options.roi !== undefined) args.push('--roi', options.roi);
+                if (options.shutter !== undefined) args.push('--shutter', options.shutter);
+                if (options.awbgains !== undefined) args.push('--awbgains', options.awbgains);
+                if (options.drc !== undefined) args.push('--drc', options.drc);
             }
 
             console.log(args.join(' '));
 
-            proc = cmd.spawn('raspistill', args);
+            // proc = cmd.spawn('raspistill', args);
             isWatchingFile = true;
 
-            const emitStream = (() => {
+            const emitStream = () => {
                 const time = (new Date()).getTime();
                 io.sockets.emit('liveStream', 'image_stream.jpg?_t=' + time);
-            })();
+            };
 
             fs.watchFile('./stream/image_stream.jpg', {interval: 0}, (current, previous) => {
                 emitStream();
