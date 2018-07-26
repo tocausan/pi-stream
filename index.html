@@ -278,7 +278,8 @@
             startStream() {
                 const options = {...this.options};
                 Object.keys(options).map(key => {
-                    if (options[key] !== null && !options[key].toString().length) options[key] = null;
+                    if (options[key].value !== null && !options[key].value.toString().length) options[key].value = null;
+                    options[key] = options[key].value;
                 });
                 socket.emit('stream', {command: 'start', options: options});
             },
