@@ -121,7 +121,11 @@
         },
         methods: {
             startStream() {
-                socket.emit('stream', {command: 'start', options: this.options});
+                const options = {...this.options};
+                Object.keys(options).map(key => {
+                    if (options[key] !== null && !options[key].toString().length) options[key] = null;
+                });
+                socket.emit('stream', {command: 'start', options: options});
             },
             stopStream() {
                 socket.emit('stream', {command: 'stop'});
@@ -136,6 +140,7 @@
             }
         },
         mounted() {
+            this.startStream();
             socket.on('liveStream', (url) => {
                 console.log(url);
                 document.querySelector('.stream').setAttribute('src', url);

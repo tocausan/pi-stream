@@ -84,8 +84,6 @@ module.exports = (io) => {
         });
 
         socket.on('stream', (data) => {
-            console.log(data);
-
             switch (data.command) {
                 case 'start':
                     return stopStreaming().then(() => startStreaming(io, data.options));
