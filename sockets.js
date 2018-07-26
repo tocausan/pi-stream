@@ -12,10 +12,9 @@ module.exports = (io) => {
             options.timelapse = 0;
             options.timeout = 999999999;
 
-            console.log(options)
             console.log(piCamera.picture.options(options).join(' '));
 
-            //proc = cmd.spawn(piCamera.picture.command, piCamera.picture.options(options));
+            proc = cmd.spawn(piCamera.picture.command, piCamera.picture.options(options));
             isWatchingFile = true;
 
             const emitStream = () => {
