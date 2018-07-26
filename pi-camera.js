@@ -54,6 +54,9 @@ module.exports = {
                 // -bm, --burst	: Enable 'burst capture mode'
 
                 // -md, --mode	: Force sensor mode. 0=auto. See docs for other modes available
+                if (data.mode !== undefined && data.mode !== null)
+                    options.push('--mode', Math.max(0, Math.min(7, parseInt(data.mode))));
+
                 // -dt, --datetime	: Replace output pattern (%d) with DateTime (MonthDayHourMinSec)
                 // -ts, --timestamp	: Replace output pattern (%d) with unix timestamp (seconds since 1970)
                 // -fs, --framestart	: Starting frame number in output pattern(%d)
@@ -86,7 +89,7 @@ module.exports = {
 
                 // -ISO, --ISO	: Set capture ISO
                 if (data.iso !== undefined && data.iso !== null)
-                    options.push('--ISO', parseInt(data.iso));
+                    options.push('--ISO', Math.max(100, Math.min(800, parseInt(data.iso))));
 
                 // -vs, --vstab	: Turn on video stabilisation
                 // -ev, --ev	: Set EV compensation - steps of 1/6 stop

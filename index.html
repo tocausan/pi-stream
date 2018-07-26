@@ -24,16 +24,19 @@
             align-items: center;
             flex-direction: column;
             position: fixed;
-            min-width: 100px;
-            max-height: 250px;
+            width: 250px;
+            height: 100%;
             overflow-y: auto;
             top: 10px;
             left: 10px;
+            background: rgba(255, 255, 255, .5);
+            padding: 5px;
         }
 
         .options-container > .option {
             display: flex;
             justify-content: space-between;
+            align-items: center;
             width: 100%;
             height: 20px;
             min-height: 20px;
@@ -45,11 +48,13 @@
             height: 100%;
         }
 
-        .options-container > .option > input {
-            width: 50%;
+        .options-container > .option > input,
+        .options-container > .option > select {
+            width: 40%;
             height: 100%;
             border: none;
             border-bottom: 1px solid rgba(0, 0, 0, .1);
+            background: none;
             transition: .3s;
         }
 
@@ -82,9 +87,30 @@
 <body>
 <div class="container" id="app">
     <div class="options-container">
-        <div class="option" v-for="(value, key) in options">
-            <label :for="key" v-html="key"></label>
-            <input type="text" :id="key" v-model="options[key]">
+        <div class="option" v-for="(option, key) in options">
+            <label :for="key" v-html="option.label"></label>
+            <input type="number"
+                   :id="key"
+                   v-model="options[key].value"
+                   placeholder="null"
+                   v-if="option.type === 'number'">
+            <input type="text"
+                   :id="key"
+                   v-model="options[key].value"
+                   placeholder="null"
+                   v-if="option.type === 'string' && !option.list">
+            <select v-model="options[key].value"
+                    v-if="option.list">
+                <option :value="null"
+                        v-html="'-'"></option>
+                <option :value="item"
+                        v-html="item"
+                        v-for="item in option.list"></option>
+            </select>
+            <select v-model="options[key].value" v-if="option.type === 'boolean'">
+                <option :value="null" v-html="false"></option>
+                <option :value="true" v-html="true"></option>
+            </select>
         </div>
     </div>
     <div class="stream-container">
@@ -95,28 +121,157 @@
 <script>
     const socket = io();
 
-    const app = new Vue({
+    new Vue({
         el: '#app',
         data: {
             options: {
-                timelapse: 0,
-                width: 100,
-                height: 100,
-                quality: null,
-                burst: null,
-                sharpness: null,
-                brightness: null,
-                saturation: null,
-                vstab: null,
-                ev: null,
-                colfx: null,
-                rotation: null,
-                hflip: null,
-                vflip: null,
-                roi: null,
-                shutter: null,
-                awbgains: null,
-                drc: null,
+                // Image parameter commands
+                width: {
+                    label: 'width',
+                    type: 'number',
+                    min: 100,
+                    max: 3280,
+                    value: 1280,
+                },
+                height: {
+                    label: 'height',
+                    type: 'number',
+                    min: 100,
+                    max: 2464,
+                    value: 720,
+                },
+                quality: {
+                    label: 'quality',
+                    type: 'number',
+                    min: 0,
+                    max: 100,
+                    value: null,
+                },
+                raw: {
+                    label: 'raw',
+                    type: 'boolean',
+                    value: null,
+                },
+                verbose: {
+                    label: 'verbose',
+                    type: 'boolean',
+                    value: null,
+                },
+                timeout: {
+                    label: 'timeout',
+                    type: 'number',
+                    min: 0,
+                    max: null,
+                    value: null,
+                },
+                timelapse: {
+                    label: 'timelapse',
+                    type: 'number',
+                    min: 0,
+                    max: null,
+                    value: null,
+                },
+                mode: {
+                    label: 'mode',
+                    type: 'number',
+                    min: 0,
+                    max: 7,
+                    value: null,
+                },
+
+                // Image parameter commands
+                sharpness: {
+                    label: 'sharpness',
+                    type: 'number',
+                    min: -100,
+                    max: 100,
+                    value: null,
+                },
+                contrast: {
+                    label: 'contrast',
+                    type: 'number',
+                    min: 0,
+                    max: 100,
+                    value: null,
+                },
+                brightness: {
+                    label: 'brightness',
+                    type: 'number',
+                    min: 0,
+                    max: 100,
+                    value: null,
+                },
+                saturation: {
+                    label: 'saturation',
+                    type: 'number',
+                    min: -100,
+                    max: 100,
+                    value: null,
+                },
+                iso: {
+                    label: 'ISO',
+                    type: 'number',
+                    min: 100,
+                    max: 800,
+                    value: null,
+                },
+                exposure: {
+                    label: 'exposure',
+                    type: 'string',
+                    list: ['off', 'auto', 'night', 'nightpreview', 'backlight', 'spotlight', 'sports', 'snow', 'beach', 'verylong', 'fixedfps', 'antishake', 'fireworks'],
+                    value: null,
+                },
+                flicker: {
+                    label: 'flicker',
+                    type: 'string',
+                    list: ['off', 'auto', '50hz', '60hz'],
+                    value: null,
+                },
+                awb: {
+                    label: 'AWB mode',
+                    type: 'string',
+                    list: ['off', 'auto', 'sun', 'cloud', 'shade', 'tungsten', 'fluorescent', 'incandescent', 'flash', 'horizon'],
+                    value: null,
+                },
+                imxfx: {
+                    label: 'image effect',
+                    type: 'string',
+                    list: ['none', 'negative', 'solarise', 'sketch', 'denoise', 'emboss', 'oilpaint', 'hatch', 'gpen', 'pastel', 'watercolour', 'film', 'blur', 'saturation', 'colourswap', 'washedout', 'posterise', 'colourpoint', 'colourbalance', 'cartoon'],
+                    value: null,
+                },
+                metering: {
+                    label: 'metering',
+                    type: 'string',
+                    list: ['average', 'spot', 'backlit', 'matrix'],
+                    value: null,
+                },
+                rotation: {
+                    label: 'rotation',
+                    type: 'number',
+                    min: 0,
+                    max: 359,
+                    value: null,
+                },
+                hflip: {
+                    label: 'horizontal flip',
+                    type: 'boolean',
+                    value: null,
+                },
+                vflip: {
+                    label: 'vertical flip',
+                    type: 'boolean',
+                    value: null,
+                },
+                annotate: {
+                    label: 'annotate',
+                    type: 'string',
+                    value: null,
+                },
+                vflipstereo: {
+                    label: 'stereoscopic mode',
+                    type: 'boolean',
+                    value: null,
+                },
             }
         },
         methods: {
